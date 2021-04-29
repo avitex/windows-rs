@@ -161,9 +161,9 @@ impl Struct {
             quote! {}
         };
 
-        let clone_or_copy = if self.is_blittable() {
+        let derive = if self.is_blittable() {
             quote! {
-                #[derive(::std::clone::Clone, ::std::marker::Copy)]
+                #[derive(::std::clone::Clone, ::std::marker::Copy, ::std::cmp::PartialEq, ::std::cmp::Eq)]
             }
         } else if is_union || has_union || is_packed {
             quote! {}
@@ -175,11 +175,7 @@ impl Struct {
 
         let body = if is_handle {
             let fields = fields.iter().map(|(_, signature, _)| {
-                let kind = if is_winrt {
-                    signature.gen_winrt(gen)
-                } else {
-                    signature.gen_win32(gen)
-                };
+                let kind = signature.gen_win32(gen);
 
                 quote! {
                     pub #kind
@@ -264,7 +260,8 @@ impl Struct {
             None
         });
 
-        let compare = if is_union | has_union | has_complex_array | is_packed {
+        let compare = if is_union | has_union | has_complex_array | is_packed || self.is_blittable()
+        {
             quote! {}
         } else {
             let compare = fields
@@ -437,7 +434,7 @@ impl Struct {
 
         quote! {
             #repr
-            #clone_or_copy
+            #derive
             pub #struct_or_union #name #body
             impl #name {
                 #(#constants)*
