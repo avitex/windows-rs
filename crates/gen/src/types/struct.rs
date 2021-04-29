@@ -161,12 +161,12 @@ impl Struct {
             quote! {}
         };
 
-        let derive = if self.is_blittable() {
+        let derive = if is_union || has_union || is_packed {
+            quote! {}
+        } else if self.is_blittable() {
             quote! {
                 #[derive(::std::clone::Clone, ::std::marker::Copy, ::std::cmp::PartialEq, ::std::cmp::Eq)]
             }
-        } else if is_union || has_union || is_packed {
-            quote! {}
         } else {
             quote! {
                 #[derive(::std::clone::Clone)]
