@@ -16,8 +16,8 @@ impl TypeRef {
         self.0.str(2)
     }
 
-    pub fn full_name(&self) -> (&'static str, &'static str) {
-        (self.namespace(), self.name())
+    pub fn type_name(&self) -> TypeName {
+        TypeName::from_full_name((self.namespace(), self.name()))
     }
 
     // TODO: consider removing and making cache hits explicit

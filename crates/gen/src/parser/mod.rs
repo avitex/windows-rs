@@ -19,6 +19,7 @@ mod signature;
 mod traits;
 mod type_flags;
 mod type_kind;
+mod type_name;
 mod type_reader;
 
 pub use blob::*;
@@ -40,4 +41,5 @@ pub use signature::*;
 pub use traits::*;
 pub use type_flags::*;
 pub use type_kind::*;
+pub use type_name::*;
 pub use type_reader::*;

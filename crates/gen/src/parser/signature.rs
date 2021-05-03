@@ -14,7 +14,7 @@ impl Signature {
         let is_const = blob
             .read_modifiers()
             .iter()
-            .any(|def| def.full_name() == ("System.Runtime.CompilerServices", "IsConst"));
+            .any(|def| def.type_name() == TypeName::Const);
 
         let by_ref = blob.read_expected(0x10);
 

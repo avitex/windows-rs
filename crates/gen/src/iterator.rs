@@ -6,10 +6,10 @@ use super::*;
 // VectorViewIterator are faster iterators than IIterator<T> because they only require a single
 // vcall per iteration wheras IIterator<T> requires two.
 pub fn gen_iterator(def: &GenericType, interfaces: &[InterfaceInfo], gen: &Gen) -> TokenStream {
-    let name = def.def.full_name();
+    let name = def.def.type_name();
 
     // If the type is IIterator<T> then simply implement the Iterator trait over top.
-    if name == ("Windows.Foundation.Collections", "IIterator`1") {
+    if name == TypeName::IIterator {
         return quote! {
             impl<T: ::windows::RuntimeType> ::std::iter::Iterator for IIterator<T> {
                 type Item = T;
@@ -29,7 +29,7 @@ pub fn gen_iterator(def: &GenericType, interfaces: &[InterfaceInfo], gen: &Gen) 
 
     // If the type is IIterable<T> then implement the IntoIterator trait and rely on the resulting
     // IIterator<T> returned by first() to implement the Iterator trait.
-    if name == ("Windows.Foundation.Collections", "IIterable`1") {
+    if name == TypeName::IIterable {
         return quote! {
             impl<T: ::windows::RuntimeType> ::std::iter::IntoIterator for IIterable<T> {
                 type Item = T;
@@ -51,7 +51,7 @@ pub fn gen_iterator(def: &GenericType, interfaces: &[InterfaceInfo], gen: &Gen) 
     }
 
     // If the type is IVectorView<T> then provide the VectorViewIterator fast iterator.
-    if name == ("Windows.Foundation.Collections", "IVectorView`1") {
+    if name == TypeName::IVectorView {
         return quote! {
             pub struct VectorViewIterator<T: ::windows::RuntimeType + 'static> {
                 vector: IVectorView<T>,
@@ -100,7 +100,7 @@ pub fn gen_iterator(def: &GenericType, interfaces: &[InterfaceInfo], gen: &Gen) 
     }
 
     // If the type is IVector<T> then provide the VectorIterator fast iterator.
-    if name == ("Windows.Foundation.Collections", "IVector`1") {
+    if name == TypeName::IVector {
         return quote! {
             pub struct VectorIterator<T: ::windows::RuntimeType + 'static> {
                 vector: IVector<T>,
@@ -154,9 +154,9 @@ pub fn gen_iterator(def: &GenericType, interfaces: &[InterfaceInfo], gen: &Gen) 
     // If the class or interface is not one of the well-known collection interfaces, we then see whether it
     // implements any one of them. Here is where we favor IVectorView/IVector over IIterable.
     for interface in interfaces {
-        let name = interface.def.def.full_name();
+        let name = interface.def.def.type_name();
 
-        if name == ("Windows.Foundation.Collections", "IVectorView`1") {
+        if name == TypeName::IVectorView {
             let constraints = def.gen_constraints(gen);
             let item = interface.def.generics[0].gen_name(gen);
             let name = def.gen_name(gen);
@@ -181,7 +181,7 @@ pub fn gen_iterator(def: &GenericType, interfaces: &[InterfaceInfo], gen: &Gen) 
             };
         }
 
-        if name == ("Windows.Foundation.Collections", "IVector`1") {
+        if name == TypeName::IVector {
             let constraints = def.gen_constraints(gen);
             let item = interface.def.generics[0].gen_name(gen);
             let name = def.gen_name(gen);
@@ -206,7 +206,7 @@ pub fn gen_iterator(def: &GenericType, interfaces: &[InterfaceInfo], gen: &Gen) 
             };
         }
 
-        if name == ("Windows.Foundation.Collections", "IIterable`1") {
+        if name == TypeName::IIterable {
             iterable = Some(interface);
         }
     }

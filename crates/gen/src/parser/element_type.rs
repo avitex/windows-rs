@@ -125,17 +125,16 @@ impl ElementType {
                 let code = TypeDefOrRef::decode(blob.file, blob.read_unsigned());
 
                 match code {
-                    TypeDefOrRef::TypeRef(type_ref) => match type_ref.full_name() {
-                        ("System", "Guid") | ("Windows.Win32.Com", "Guid") => Self::Guid,
-                        ("Windows.Win32.Com", "IUnknown") => Self::IUnknown,
-                        ("Windows.Foundation", "HResult") => Self::HRESULT,
-                        ("Windows.Win32.Com", "HRESULT") => Self::HRESULT,
-                        ("Windows.Win32.WinRT", "HSTRING") => Self::String,
-                        ("Windows.Win32.WinRT", "IInspectable") => Self::IInspectable,
-                        ("Windows.Win32.SystemServices", "LARGE_INTEGER") => Self::I64,
-                        ("Windows.Win32.SystemServices", "ULARGE_INTEGER") => Self::U64,
-                        ("Windows.Win32.Direct2D", "D2D_MATRIX_3X2_F") => Self::Matrix3x2,
-                        ("System", "Type") => Self::TypeName,
+                    TypeDefOrRef::TypeRef(type_ref) => match type_ref.type_name() {
+                        TypeName::Guid => Self::Guid,
+                        TypeName::IUnknown => Self::IUnknown,
+                        TypeName::HRESULT => Self::HRESULT,
+                        TypeName::HSTRING => Self::String,
+                        TypeName::IInspectable => Self::IInspectable,
+                        TypeName::I64 => Self::I64,
+                        TypeName::U64 => Self::U64,
+                        TypeName::Matrix3x2 => Self::Matrix3x2,
+                        TypeName::Type => Self::TypeName,
                         _ => Self::from_type_def(type_ref.resolve(), Vec::new()),
                     },
                     TypeDefOrRef::TypeDef(type_def) => Self::from_type_def(type_def, Vec::new()),

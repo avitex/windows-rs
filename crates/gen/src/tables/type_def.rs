@@ -16,9 +16,8 @@ impl TypeDef {
         self.0.str(2)
     }
 
-    // TODO: all "full_name" methods should return a FullName struct that provides a fast compare for match expressions
-    pub fn full_name(&self) -> (&'static str, &'static str) {
-        (self.namespace(), self.name())
+    pub fn type_name(&self) -> TypeName {
+        TypeName::from_full_name((self.namespace(), self.name()))
     }
 
     pub fn extends(&self) -> (&'static str, &'static str) {
@@ -27,7 +26,8 @@ impl TypeDef {
         if extends == 0 {
             ("", "")
         } else {
-            TypeDefOrRef::decode(self.0.file, extends).full_name()
+            let extends = TypeDefOrRef::decode(self.0.file, extends);
+            (extends.namespace(), extends.name())
         }
     }
 
